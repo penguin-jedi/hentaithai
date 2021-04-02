@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         hentaithai
-// @version      0.1
+// @name         hentaithai-www
+// @version      0.2
 // @description  push www to all anchor to breach stupid block
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/www-everywhere
@@ -29,10 +29,16 @@ $(document).ready(async () => {
 
   const insertWWW = () => {
     $(`a[href*="${hostname}"]`).each((_index, element) => {
-      element.href = element.href.replace(/^(http|https)?:\/\//, "$1://www.");
-      if($(element).attr("data-cturl")) {
-        $(element).removeAttr("dir data-cturl data-ctorig");
-      }
+      $.ajax({
+        url: element.href,
+        success: (data, textStatus, jqXHR) => null,
+        error: (jqXHR, textStatus, errorThrown) => {
+          element.href = element.href.replace(/^(http|https)?:\/\//, "$1://www.");
+          if(location.hostname === "cse.google.com" && $(element).attr("data-cturl")) {
+            $(element).removeAttr("dir data-cturl data-ctorig");
+          }
+        },
+      });
     });
     $(`option[value*="${hostname}"]`).each((_index, element) => {
       element.value = element.value.replace(/\/\/(.*)\//, "https://www.$1/");
