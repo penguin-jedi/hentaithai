@@ -3,9 +3,9 @@
 // @version      0.2
 // @description  push www to all anchor to breach stupid block
 // @author       penguin-jedi
-// @homepage     https://github.com/penguin-jedi/www-everywhere
-// @downloadURL  https://github.com/penguin-jedi/www-everywhere/raw/main/hentaithai.user.js
-// @supportURL   https://github.com/penguin-jedi/www-everywhere/issues
+// @homepage     https://github.com/penguin-jedi/hentaithai
+// @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/main/hentaithai-www.user.js
+// @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @include      /^https?:\/\/(www\.)?hentaithai\.(com|net)/
 // @include      /^https?:\/\/(www\.)?doujin-th(ai)?\.(com|net)/
 // @include      /^https?:\/\/cse\.google\.com\/cse.*cx=(003772632849311655372:vrxjurxumkq|bc72584f2ccd6c0fd|37fa68f814191feba|003772632849311655372:-igy6k3yaqk|003772632849311655372:ciizy3icl-8).*/
