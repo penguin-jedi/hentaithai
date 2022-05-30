@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         hentaithai-download
-// @version      0.3
+// @version      0.4
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
-// @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/main/hentaithai-download.user.js
-// @updateURL    https://github.com/penguin-jedi/hentaithai/raw/main/hentaithai-download.user.js
+// @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js
+// @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @include      /^https?:\/\/(www\.)?hentaithai\.(com|net)\/forum\/index.php\?topic=/
 // @include      /^https?:\/\/(www\.)?doujin-th(ai)?\.(com|net)\/forum\/index.php\?topic=/
