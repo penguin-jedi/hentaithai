@@ -6,4 +6,4 @@ is script that run on [Tampermonkey](https://tampermonkey.net/) to download the 
 
 ## Scripts
 - [HentaiThai-www](https://github.com/penguin-jedi/hentaithai/raw/main/hentaithai-www.user.js)
-- [HentaiThai-download](https://github.com/penguin-jedi/hentaithai/raw/main/hentaithai-download.user.js)
+- [HentaiThai-download](https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js)
