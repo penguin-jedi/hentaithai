@@ -42,20 +42,22 @@ $(document).ready(async () => {
     origin: 'https://www.hentaithai.com',
   };
   let downloadGallerying = null;
-  const start = () => {
+  const start = (indexOffsetStart, indexOffsetEnd) => {
     downloadGallerying = true;
     silentAudioFile.play();
-    $("#downloadGalleryButton").html(spinner);
+    const originalHtml = $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(spinner);
+    return originalHtml;
   };
-  const stop = () => {
+  const stop = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
-    $("#downloadGalleryButton").html('Download this gallery');
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(originalHtml);
   };
-  const downloadGallery = async () => {
-    start();
+  const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
+    const originalHtml = start(indexOffsetStart, indexOffsetEnd);
     const title = $("h1[style='font-size:120%']").html() || $('title').html();
-    const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src);
+    const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
     const imageContents = await Promise.all(imgSrcs.map((imgSrc) => httpGet(imgSrc, headers)));
 
     const zip = new JSZip();
@@ -68,7 +70,7 @@ $(document).ready(async () => {
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
     const blob = new Blob([zipContent], {type: 'application/zip'});
     saveAs(blob, `${title}.zip`);
-    stop();
+    stop(indexOffsetStart, indexOffsetEnd, originalHtml);
   };
 
   $(document.body).prepend(`
@@ -78,8 +80,14 @@ $(document).ready(async () => {
       right: 20px;
       bottom: 20px;
     ">
-      <button id="downloadGalleryButton" style="width: 180px; height: 40px;">Download this gallery</button>
+      <div>
+        <button id="downloadGalleryButton_1_0" style="width: 90px; height: 40px;">2..n</button>
+        <button id="downloadGalleryButton_1_1" style="width: 90px; height: 40px;">2..n-1</button>
+      </div>
+      <button id="downloadGalleryButton_0_0" style="width: 180px; height: 40px;">Download this gallery</button>
     </div>
   `);
-  $("#downloadGalleryButton").click(downloadGallery);
+  $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
+  $("#downloadGalleryButton_1_0").click(downloadGallery(1, 0));
+  $("#downloadGalleryButton_1_1").click(downloadGallery(1, 1));
 });
