@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @include      /^https?:\/\/(www\.)?hentaithai\.(com|net)\/forum\/index.php\?topic=/
 // @include      /^https?:\/\/(www\.)?doujin-th(ai)?\.(com|net)\/forum\/index.php\?topic=/
-// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js
@@ -37,34 +37,36 @@ $(document).ready(async () => {
     });
   });
   const headers = {
-    Host: 'hentaithai.com',
-    referer: 'https://www.hentaithai.com',
-    origin: 'https://www.hentaithai.com',
+    Host: window.location.host,
+    referer: window.location.origin,
+    origin: window.location.origin,
   };
   let downloadGallerying = null;
   const start = (indexOffsetStart, indexOffsetEnd) => {
     downloadGallerying = true;
     silentAudioFile.play();
     const originalHtml = $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(spinner);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
   const stop = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(originalHtml);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
   };
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
+    if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
     const title = $("h1[style='font-size:120%']").html() || $('title').html();
     const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
     const imageContents = await Promise.all(imgSrcs.map((imgSrc) => httpGet(imgSrc, headers)));
 
     const zip = new JSZip();
+    const targetLength = Math.ceil(Math.log10(imageContents.length));
     for (let i = 0; i < imageContents.length; i++) {
       const imageContent = imageContents[i];
       const fileName = imageContent.finalUrl.substring(imageContent.finalUrl.lastIndexOf('/') + 1);
-      const prefix = `${i + 1}`.padStart(3, '0');
+      const prefix = `${i + 1}`.padStart(targetLength, '0');
       zip.file(`${prefix}_${fileName}`, imageContent.response);
     };
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
@@ -81,13 +83,17 @@ $(document).ready(async () => {
       bottom: 20px;
     ">
       <div>
-        <button id="downloadGalleryButton_1_0" style="width: 90px; height: 40px;">2..n</button>
-        <button id="downloadGalleryButton_1_1" style="width: 90px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_0" style="width: 88px; height: 40px;">2..n</button>
+        <button id="downloadGalleryButton_1_1" style="width: 88px; height: 40px;">2..n-1</button>
       </div>
-      <button id="downloadGalleryButton_0_0" style="width: 180px; height: 40px;">Download this gallery</button>
+      <div>
+        <button id="downloadGalleryButton_0_0" style="width: 88px; height: 40px;">Download</button>
+        <button id="downloadGalleryButton_0_1" style="width: 88px; height: 40px;">1..n-1</button>
+      </div>
     </div>
   `);
   $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
+  $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
   $("#downloadGalleryButton_1_0").click(downloadGallery(1, 0));
   $("#downloadGalleryButton_1_1").click(downloadGallery(1, 1));
 });
