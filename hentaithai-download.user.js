@@ -83,13 +83,17 @@ $(document).ready(async () => {
       bottom: 20px;
     ">
       <div>
-        <button id="downloadGalleryButton_1_0" style="width: 90px; height: 40px;">2..n</button>
-        <button id="downloadGalleryButton_1_1" style="width: 90px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_0" style="width: 88px; height: 40px;">2..n</button>
+        <button id="downloadGalleryButton_1_1" style="width: 88px; height: 40px;">2..n-1</button>
       </div>
-      <button id="downloadGalleryButton_0_0" style="width: 180px; height: 40px;">Download this gallery</button>
+      <div>
+        <button id="downloadGalleryButton_0_0" style="width: 88px; height: 40px;">Download</button>
+        <button id="downloadGalleryButton_0_1" style="width: 88px; height: 40px;">1..n-1</button>
+      </div>
     </div>
   `);
   $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
+  $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
   $("#downloadGalleryButton_1_0").click(downloadGallery(1, 0));
   $("#downloadGalleryButton_1_1").click(downloadGallery(1, 1));
 });
