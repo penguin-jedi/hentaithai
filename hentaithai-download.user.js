@@ -37,9 +37,9 @@ $(document).ready(async () => {
     });
   });
   const headers = {
-    Host: 'hentaithai.com',
-    referer: 'https://www.hentaithai.com',
-    origin: 'https://www.hentaithai.com',
+    Host: window.location.host,
+    referer: window.location.origin,
+    origin: window.location.origin,
   };
   let downloadGallerying = null;
   const start = (indexOffsetStart, indexOffsetEnd) => {
