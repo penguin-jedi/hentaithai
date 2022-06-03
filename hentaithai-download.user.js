@@ -62,10 +62,11 @@ $(document).ready(async () => {
     const imageContents = await Promise.all(imgSrcs.map((imgSrc) => httpGet(imgSrc, headers)));
 
     const zip = new JSZip();
+    const targetLength = Math.ceil(Math.log10(imageContents.length));
     for (let i = 0; i < imageContents.length; i++) {
       const imageContent = imageContents[i];
       const fileName = imageContent.finalUrl.substring(imageContent.finalUrl.lastIndexOf('/') + 1);
-      const prefix = `${i + 1}`.padStart(3, '0');
+      const prefix = `${i + 1}`.padStart(targetLength, '0');
       zip.file(`${prefix}_${fileName}`, imageContent.response);
     };
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
