@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         hentaithai-www
-// @version      0.2
+// @version      0.3
 // @description  push www to all anchor to breach stupid block
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
