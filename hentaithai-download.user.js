@@ -46,15 +46,16 @@ $(document).ready(async () => {
     downloadGallerying = true;
     silentAudioFile.play();
     const originalHtml = $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(spinner);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
   const stop = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html(originalHtml);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
   };
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
+    if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
     const title = $("h1[style='font-size:120%']").html() || $('title').html();
     const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
