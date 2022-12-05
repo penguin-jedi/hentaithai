@@ -58,7 +58,7 @@ $(document).ready(async () => {
     if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
     const title = $("h1[style='font-size:120%']").html() || $('title').html();
-    const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
+    const imgSrcs = $("p.link-image > a.link-next > img.img-fluid, p > img.img-responsive").get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
     const imageContents = await Promise.all(imgSrcs.map((imgSrc) => httpGet(imgSrc, headers)));
 
     const zip = new JSZip();
