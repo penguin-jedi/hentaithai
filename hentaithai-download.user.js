@@ -79,6 +79,8 @@ $(document).ready(async () => {
     stop(indexOffsetStart, indexOffsetEnd, originalHtml);
   };
 
+  window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
+
   $(document.body).prepend(`
     <div style="
       position: fixed;
