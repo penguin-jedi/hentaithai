@@ -7,8 +7,12 @@
 // @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js
 // @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
-// @include      /^https?:\/\/(www\.)?hentaithai\.(com|net)\/forum\/index.php\?topic=/
-// @include      /^https?:\/\/(www\.)?doujin-th(ai)?\.(com|net)\/forum\/index.php\?topic=/
+// @match        *://*.hentaithai.com/forum/index.php?topic=*
+// @match        *://*.hentaithai.net/forum/index.php?topic=*
+// @match        *://*.doujin-th.com/forum/index.php?topic=*
+// @match        *://*.doujin-th.net/forum/index.php?topic=*
+// @match        *://*.doujin-thai.com/forum/index.php?topic=*
+// @match        *://*.doujin-thai.net/forum/index.php?topic=*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
@@ -49,16 +53,17 @@ $(document).ready(async () => {
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
-  const stop = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
+  const finish = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
   };
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
     if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
     const title = $("h1[style='font-size:120%']").html() || $('title').html();
-    const imgSrcs = $('img[alt*="หน้า"]').get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
+    const imgSrcs = $("p.link-image > a.link-next > img.img-fluid, p > img.img-responsive").get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
     const imageContents = await Promise.all(imgSrcs.map((imgSrc) => httpGet(imgSrc, headers)));
 
     const zip = new JSZip();
@@ -72,8 +77,10 @@ $(document).ready(async () => {
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
     const blob = new Blob([zipContent], {type: 'application/zip'});
     saveAs(blob, `${title}.zip`);
-    stop(indexOffsetStart, indexOffsetEnd, originalHtml);
+    finish(indexOffsetStart, indexOffsetEnd, originalHtml);
   };
+
+  window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
 
   $(document.body).prepend(`
     <div style="
@@ -83,17 +90,21 @@ $(document).ready(async () => {
       bottom: 20px;
     ">
       <div>
-        <button id="downloadGalleryButton_1_0" style="width: 88px; height: 40px;">2..n</button>
-        <button id="downloadGalleryButton_1_1" style="width: 88px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_0" style="width: 57px; height: 40px;">2..n</button>
+        <button id="downloadGalleryButton_1_1" style="width: 57px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_2" style="width: 57px; height: 40px;">2..n-2</button>
       </div>
       <div>
         <button id="downloadGalleryButton_0_0" style="width: 88px; height: 40px;">Download</button>
-        <button id="downloadGalleryButton_0_1" style="width: 88px; height: 40px;">1..n-1</button>
+        <button id="downloadGalleryButton_0_1" style="width: 57px; height: 40px;">1..n-1</button>
+        <button id="downloadGalleryButton_0_2" style="width: 57px; height: 40px;">1..n-2</button>
       </div>
     </div>
   `);
   $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
   $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
+  $("#downloadGalleryButton_0_2").click(downloadGallery(0, 2));
   $("#downloadGalleryButton_1_0").click(downloadGallery(1, 0));
   $("#downloadGalleryButton_1_1").click(downloadGallery(1, 1));
+  $("#downloadGalleryButton_1_2").click(downloadGallery(1, 2));
 });
