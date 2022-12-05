@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         hentaithai-download
-// @version      0.4
+// @version      0.5
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
