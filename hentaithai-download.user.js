@@ -53,10 +53,11 @@ $(document).ready(async () => {
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
-  const stop = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
+  const finish = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
+    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
   };
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
     if (downloadGallerying === true) return;
@@ -76,7 +77,7 @@ $(document).ready(async () => {
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
     const blob = new Blob([zipContent], {type: 'application/zip'});
     saveAs(blob, `${title}.zip`);
-    stop(indexOffsetStart, indexOffsetEnd, originalHtml);
+    finish(indexOffsetStart, indexOffsetEnd, originalHtml);
   };
 
   window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
@@ -89,17 +90,21 @@ $(document).ready(async () => {
       bottom: 20px;
     ">
       <div>
-        <button id="downloadGalleryButton_1_0" style="width: 88px; height: 40px;">2..n</button>
-        <button id="downloadGalleryButton_1_1" style="width: 88px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_0" style="width: 57px; height: 40px;">2..n</button>
+        <button id="downloadGalleryButton_1_1" style="width: 57px; height: 40px;">2..n-1</button>
+        <button id="downloadGalleryButton_1_2" style="width: 57px; height: 40px;">2..n-2</button>
       </div>
       <div>
         <button id="downloadGalleryButton_0_0" style="width: 88px; height: 40px;">Download</button>
-        <button id="downloadGalleryButton_0_1" style="width: 88px; height: 40px;">1..n-1</button>
+        <button id="downloadGalleryButton_0_1" style="width: 57px; height: 40px;">1..n-1</button>
+        <button id="downloadGalleryButton_0_2" style="width: 57px; height: 40px;">1..n-2</button>
       </div>
     </div>
   `);
   $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
   $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
+  $("#downloadGalleryButton_0_2").click(downloadGallery(0, 2));
   $("#downloadGalleryButton_1_0").click(downloadGallery(1, 0));
   $("#downloadGalleryButton_1_1").click(downloadGallery(1, 1));
+  $("#downloadGalleryButton_1_2").click(downloadGallery(1, 2));
 });
