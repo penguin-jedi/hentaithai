@@ -7,11 +7,17 @@
 // @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-www.user.js
 // @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-www.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
-// @include      /^https?:\/\/(www\.)?hentaithai\.(com|net)/
-// @include      /^https?:\/\/(www\.)?doujin-th(ai)?\.(com|net)/
-// @include      /^https?:\/\/cse\.google\.com\/cse.*cx=(003772632849311655372:vrxjurxumkq|bc72584f2ccd6c0fd|37fa68f814191feba|003772632849311655372:-igy6k3yaqk|003772632849311655372:ciizy3icl-8).*/
+// @match        *://*.hentaithai.com/*
+// @match        *://*.hentaithai.net/*
+// @match        *://*.doujin-th.com/*
+// @match        *://*.doujin-th.net/*
+// @match        *://*.doujin-thai.com/*
+// @match        *://*.doujin-thai.net/*
+// @match        *://cse.google.com/cse*cx=003772632849311655372*
+// @match        *://cse.google.com/cse*cx=bc72584f2ccd6c0fd*
+// @match        *://cse.google.com/cse*cx=37fa68f814191feba*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
-// @require      https://code.jquery.com/jquery-3.6.0.min.js
+// @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
 // @grant        none
 // ==/UserScript==
 
@@ -34,7 +40,7 @@ $(document).ready(async () => {
         url: element.href,
         success: (data, textStatus, jqXHR) => null,
         error: (jqXHR, textStatus, errorThrown) => {
-          element.href = element.href.replace(/^(http|https)?:\/\//, "$1://www.");
+          element.href = element.href.replace(/^(http|https)?:\/\//, "https://www.");
           if(location.hostname === "cse.google.com" && $(element).attr("data-cturl")) {
             $(element).removeAttr("dir data-cturl data-ctorig");
           }
