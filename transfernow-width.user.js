@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         transfernow-width
-// @version      0.1
+// @version      0.2
 // @description  expand width content
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @match        *://*.transfernow.net/*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
-// @require      https://code.jquery.com/jquery-3.6.0.min.js
+// @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
 // @run-at       document-end
 // ==/UserScript==
 
