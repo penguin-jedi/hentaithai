@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         kemono-downloader
+// @name         kemono-download
 // @version      0.3
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
-// @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/kemono-downloader.user.js
-// @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/kemono-downloader.user.js
+// @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/kemono-download.user.js
+// @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/kemono-download.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @match        *://*.kemono.party/fanbox/user/*/post/*
 // @match        *://*.kemono.party/patreon/user/*/post/*
