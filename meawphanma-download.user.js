@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         meawphanma-download
-// @version      0.2
+// @version      0.3
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -79,7 +79,19 @@ $(document).ready(async () => {
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
     $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
   };
-  const delay = () => new Promise((res) => setTimeout(res, RETRY_DELAY_MILLISECOND));
+  const delay = (millisec) => new Promise((res) => setTimeout(res, millisec));
+  const retryableJob = async (job, onError, limit = 1) => {
+    for(let k = 1; k <= limit; k++) {
+      try {
+        await job();
+        break;
+      } catch (error) {
+        onError(error);
+        await delay(RETRY_DELAY_MILLISECOND);
+        continue;
+      }
+    }
+  };
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
     if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
@@ -94,20 +106,9 @@ $(document).ready(async () => {
         const attempt = async () => {
           imageContents[index] = await httpGet(url, headers);
         };
-        let lastError = null;
-        for(let k = 0; k < RETRY_MAX_COUNT; k++) {
-          try {
-            await attempt();
-            break;
-          }
-          catch (error) {
-            console.error(`[${taskId}]error`, error);
-            lastError = error;
-            await delay();
-            continue;
-          }
-        }
-        if (lastError) throw lastError;
+        await retryableJob(attempt, (error) => {
+          console.error(`[${taskID}]`, error.stack);
+        }, RETRY_MAX_COUNT);
       }
     };
     await Promise.all(Array(CONCURRENT).fill().map((_e, index) => retryableTask(index)));
