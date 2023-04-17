@@ -89,6 +89,7 @@ $(document).ready(async () => {
     result = result.replace(new RegExp('&gt;', 'ig'), ']');
     return result;
   };
+  const galleryId = window.location.pathname.split('/').at(-2);
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
     if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
@@ -120,9 +121,9 @@ $(document).ready(async () => {
     for (let i = 0; i < imageContents.length; i++) {
       const imageContent = imageContents[i];
       if (!imageContent) return;
-      const fileName = imageContent.finalUrl.substring(imageContent.finalUrl.lastIndexOf('/') + 1);
-      const prefix = `${i + 1}`.padStart(targetLength, '0');
-      zip.file(`${prefix}_${fileName}`, imageContent.response);
+      const fileExtension = imageContent.finalUrl.substring(imageContent.finalUrl.lastIndexOf('.') + 1);
+      const padStartRuningNumber = `${i + 1}`.padStart(targetLength, '0');
+      zip.file(`${galleryId}_${padStartRuningNumber}.${fileExtension}`, imageContent.response);
     }
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
     const blob = new Blob([zipContent], {type: 'application/zip'});
