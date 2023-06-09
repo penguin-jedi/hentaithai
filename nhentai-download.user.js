@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         nhentai-download
-// @version      0.4
+// @version      0.5
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -11,7 +11,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js
 // @grant        GM.xmlHttpRequest
 // @run-at       document-start
 // ==/UserScript==
@@ -22,7 +22,8 @@ const disableConsoleClear = () => {
 }
 disableConsoleClear();
 
-$(document).ready(async () => {
+const $j = jQuery.noConflict();
+$j(document).ready(async () => {
   const CONCURRENT = 3;
   const DOWNLOAD_TIMEOUT_MILLISECOND = 10000;
   const RETRY_DELAY_MILLISECOND = 256;
@@ -56,18 +57,18 @@ $(document).ready(async () => {
     return html.substring(0, end) || html;
   }
   let downloadGallerying = null;
-  const start = (indexOffsetStart, indexOffsetEnd) => {
+  const start = () => {
     downloadGallerying = true;
     silentAudioFile.play();
-    const originalHtml = $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
+    const originalHtml = $j(`#downloadGalleryButton`).html();
+    $j(`#downloadGalleryButton`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
-  const finish = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
+  const finish = (originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
+    $j(`#downloadGalleryButton`).removeAttr("disabled").html(originalHtml);
+    $j(`#downloadGalleryButton`).css({ "background-color": "#23e320" });
   };
   const delay = (millisec) => new Promise((res) => setTimeout(res, millisec));
   const retryableJob = async (job, onError, limit = 1) => {
@@ -84,21 +85,29 @@ $(document).ready(async () => {
   };
   const escapeFileName = (str) => {
     let result = str || '';
+    if (str[0] === '(') result = result.substring(result.indexOf(')') + 1).trim();
     result = result.replace(new RegExp('&amp;', 'ig'), '&');
     result = result.replace(new RegExp('&lt;', 'ig'), '[');
     result = result.replace(new RegExp('&gt;', 'ig'), ']');
     return result;
   };
   const galleryId = window.location.pathname.split('/').at(-2);
-  const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
+  const downloadGallery = async (skipingIndexs) => {
     if (downloadGallerying === true) return;
-    const originalHtml = start(indexOffsetStart, indexOffsetEnd);
-    const title = $("h1.title > span").map((_index, element) => element.innerHTML).get().join('') || $('title').html();
-    const imgPages = $("a.gallerythumb").get().map((element) => element.href).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
-    const imageContents = Array(imgPages.length);
-    const targetLength = Math.ceil(Math.log10(imageContents.length));
+    const originalHtml = start();
+    const title = $j("h1.title > span").map((_index, element) => element.innerHTML).get().join('') || $j('title').html();
+    const imgPages = $j("a.gallerythumb").get().map((element) => element.href);
+    const gallerySize = imgPages.length;
+    const mappedSkipingIndexs = skipingIndexs.map((skipingIndex) => {
+      if(skipingIndex < 0) return gallerySize + skipingIndex;
+      else return skipingIndex;
+    });
+    const imageContents = Array(gallerySize);
+    const targetLength = Math.ceil(Math.log10(gallerySize));
     const imgQueue = [];
-    imgPages.forEach((url, index) => imgQueue.push({ url, index }));
+    imgPages.forEach((url, index) => {
+      if (!mappedSkipingIndexs.includes(index)) imgQueue.push({ url, index });
+    });
     const retryableTask = async () => {
       for (let element = imgQueue.shift(); !!element; element = imgQueue.shift()) {
         const { url, index } = element;
@@ -120,7 +129,7 @@ $(document).ready(async () => {
     const zip = new JSZip();
     for (let i = 0; i < imageContents.length; i++) {
       const imageContent = imageContents[i];
-      if (!imageContent) return;
+      if (!imageContent) continue;
       const fileExtension = imageContent.finalUrl.substring(imageContent.finalUrl.lastIndexOf('.') + 1);
       const padStartRuningNumber = `${i + 1}`.padStart(targetLength, '0');
       zip.file(`${galleryId}_${padStartRuningNumber}.${fileExtension}`, imageContent.response);
@@ -128,28 +137,36 @@ $(document).ready(async () => {
     const zipContent = await zip.generateAsync({ type: 'arraybuffer' });
     const blob = new Blob([zipContent], {type: 'application/zip'});
     saveAs(blob, `${escapeFileName(title)}.zip`);
-    finish(indexOffsetStart, indexOffsetEnd, originalHtml);
+    finish(originalHtml);
+  };
+  const preDownload = async () => {
+    const skipPreIndexs = $j("input:radio[name ='skip_pre']:checked").val().split(',').filter((n) => !!n);
+    const skipSufIndexs = $j("input:radio[name ='skip_suf']:checked").val().split(',').filter((n) => !!n);
+    await downloadGallery(skipPreIndexs.concat(skipSufIndexs).map((n) => parseInt(n)));
   };
 
   window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
 
-  $(document.body).prepend(`
-    <div style="
-      position: fixed;
-      z-index: 100000;
-      right: 20px;
-      bottom: 20px;
-    ">
-      <div>
-        <button id="downloadGalleryButton_0_1" style="width: 57px; height: 40px;">1..n-1</button>
-        <button id="downloadGalleryButton_0_2" style="width: 57px; height: 40px;">1..n-2</button>
+  $j(document.body).prepend(`
+    <div style="position:fixed;z-index:2147483647;right:20px;bottom:20px;background-color:#EF771E;padding:10px;">
+      <div style="display:flex;flex-direction:row;">
+        <div style="display:flex;flex-direction:column;margin-right:10px;">
+          <label><input type="radio" name="skip_pre" value="" checked> don't skip</label>
+          <label><input type="radio" name="skip_pre" value="0"> skip 1st page</label>
+          <label><input type="radio" name="skip_pre" value="1"> skip 2nd page</label>
+          <label><input type="radio" name="skip_pre" value="0,1"> skip both page</label>
+        </div>
+        <div style="display:flex;flex-direction:column;">
+          <label><input type="radio" name="skip_suf" value="-1,-2,-3"> skip last 3 pages</label>
+          <label><input type="radio" name="skip_suf" value="-1,-2"> skip last 2 pages</label>
+          <label><input type="radio" name="skip_suf" value="-1"> skip last 1 page</label>
+          <label><input type="radio" name="skip_suf" value="" checked> don't skip</label>
+        </div>
       </div>
-      <div>
-        <button id="downloadGalleryButton_0_0" style="width: 88px; height: 40px;">Download</button>
+      <div style="display:flex;justify-content:center;padding-top:10px;">
+        <button id="downloadGalleryButton" style="width: 88px; height: 40px;">Download</button>
       </div>
     </div>
   `);
-  $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
-  $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
-  $("#downloadGalleryButton_0_2").click(downloadGallery(0, 2));
+  $j("#downloadGalleryButton").click(preDownload);
 });
