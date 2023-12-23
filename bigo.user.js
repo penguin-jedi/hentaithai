@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         bigo
-// @version      0.1
+// @version      0.2
 // @description  remove none-video components
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
 // @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/bigo.user.js
 // @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/bigo.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
-// @match        ://*.bigo.tv/*
+// @match        https://*.bigo.tv/*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
 // @run-at       document-end
