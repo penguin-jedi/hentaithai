@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         hentaithai-download
-// @version      0.9
+// @version      0.10
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -8,10 +8,12 @@
 // @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/hentaithai-download.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
 // @match        *://*.hentaithai.com/forum/index.php?topic=*
+// @match        *://*.hentaithai.com/t*
 // @match        *://*.hentaithai.net/forum/index.php?topic=*
 // @match        *://*.doujin-th.com/forum/index.php?topic=*
 // @match        *://*.doujin-th.net/forum/index.php?topic=*
 // @match        *://*.doujin-thai.com/forum/index.php?topic=*
+// @match        *://*.doujin-thai.net/forum/index.php?topic=*
 // @match        *://*.doujin-thai.net/forum/index.php?topic=*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
@@ -79,11 +81,12 @@ $j(document).ready(async () => {
   const escapeFileName = (str) => {
     let result = str || '';
     result = result.replace(new RegExp('&amp;', 'ig'), '&');
-    result = result.replace(new RegExp('&lt;', 'ig'), '[');
     result = result.replace(new RegExp('&gt;', 'ig'), ']');
+    result = result.replace(new RegExp('&lt;', 'ig'), '[');
+    result = result.replace(new RegExp('&nbsp;', 'ig'), ' ');
     return result;
   };
-  const galleryId = window.location.search.split('topic=').at(-1).split('.').at(0);
+  const galleryId = window.location.pathname.substring(2);
   const downloadGallery = async (skipingIndexs) => {
     if (downloadGallerying === true) return;
     const originalHtml = start();
@@ -156,4 +159,8 @@ $j(document).ready(async () => {
     </div>
   `);
   $j("#downloadGalleryButton").click(preDownload);
+  $j("div.card-header").click((event) => {
+    const title = $j("h1[style='font-size:120%']").html() || $j('title').html();
+    navigator.clipboard.writeText(title);
+  });
 });
