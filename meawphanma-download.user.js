@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         meawphanma-download
-// @version      0.3
+// @version      0.4
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -17,7 +17,8 @@
 // @run-at       document-end
 // ==/UserScript==
 
-$(document).ready(async () => {
+const $j = jQuery.noConflict();
+$j(document).ready(async () => {
   const CONCURRENT = 8;
   const RETRY_DELAY_MILLISECOND = 500;
   const RETRY_MAX_COUNT = 1000000000;
@@ -69,15 +70,15 @@ $(document).ready(async () => {
   const start = (indexOffsetStart, indexOffsetEnd) => {
     downloadGallerying = true;
     silentAudioFile.play();
-    const originalHtml = $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
+    const originalHtml = $j(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).html();
+    $j(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).attr("disabled", true).html(spinner);
     return originalHtml;
   };
   const finish = (indexOffsetStart, indexOffsetEnd, originalHtml) => {
     downloadGallerying = false;
     silentAudioFile.pause();
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
-    $(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
+    $j(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).removeAttr("disabled").html(originalHtml);
+    $j(`#downloadGalleryButton_${indexOffsetStart}_${indexOffsetEnd}`).css({ "background-color": "#23e320" });
   };
   const delay = (millisec) => new Promise((res) => setTimeout(res, millisec));
   const retryableJob = async (job, onError, limit = 1) => {
@@ -95,8 +96,8 @@ $(document).ready(async () => {
   const downloadGallery = (indexOffsetStart, indexOffsetEnd) => async () => {
     if (downloadGallerying === true) return;
     const originalHtml = start(indexOffsetStart, indexOffsetEnd);
-    const title = $("meta[property='og:description']").attr("content")?.replace(/(\r\n|\n|\r)/gm, "") || $('title').html();
-    const imgSrcs = $("div > div > div > div > div > div > div > div > div > div > img[role='img']").get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
+    const title = $j("meta[property='og:description']").attr("content")?.replace(/(\r\n|\n|\r)/gm, "") || $j('title').html();
+    const imgSrcs = $j("div > div > div > div > div > div > div > div > div > div > img[role='img']").get().map((element) => element.src).filter((_value, index, array) => index >= indexOffsetStart && index < array.length - indexOffsetEnd);
     const imageContents = Array(imgSrcs.length);
     const imgQueue = [];
     imgSrcs.forEach((url, index) => imgQueue.push({ url, index }));
@@ -130,7 +131,7 @@ $(document).ready(async () => {
 
   window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
 
-  $(document.body).prepend(`
+  $j(document.body).prepend(`
     <div style="
       position: fixed;
       z-index: 100000;
@@ -143,6 +144,6 @@ $(document).ready(async () => {
       </div>
     </div>
   `);
-  $("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
-  $("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
+  $j("#downloadGalleryButton_0_0").click(downloadGallery(0, 0));
+  $j("#downloadGalleryButton_0_1").click(downloadGallery(0, 1));
 }, false);
