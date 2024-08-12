@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         transfernow-width
-// @version      0.2
+// @version      0.3
 // @description  expand width content
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -15,6 +15,14 @@
 
 $(document).ready(async () => {
   $(`<style>
+    div[class^='downloader_downloader'] {
+      width: 100%;
+      max-width: none;
+    }
+    div[class^='downloader_global'] {
+      width: 70%;
+      max-width: none;
+    }
     div.custo {
       width: 70%;
       max-width: none;

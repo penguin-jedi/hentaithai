@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         mico
-// @version      0.3
+// @version      0.4
 // @description  remove none-video components
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
 // @downloadURL  https://github.com/penguin-jedi/hentaithai/raw/release/mico.user.js
 // @updateURL    https://github.com/penguin-jedi/hentaithai/raw/release/mico.user.js
 // @supportURL   https://github.com/penguin-jedi/hentaithai/issues
-// @match        https://*.liveseries.net/*
-// @match        https://*.micoworld.net/*
+// @match        *://*.liveseries.net/*
+// @match        *://*.micoworld.net/*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
 // @run-at       document-end
