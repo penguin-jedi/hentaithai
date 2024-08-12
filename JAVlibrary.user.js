@@ -10,9 +10,36 @@
 // @match        *://*.javlibrary.com/*
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=
 // @require      https://code.jquery.com/jquery-3.6.4.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js
+// @grant        GM.xmlHttpRequest
+// @grant        GM.addStyle
 // @run-at       document-end
 // ==/UserScript==
 $(document).ready(async () => {
+    GM.xmlHttpRequest({
+      method: 'GET',
+      url: 'https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css',
+      responseType: 'arraybuffer',
+      onloadend: ({ responseText }) => {
+        GM.addStyle(responseText);
+      },
+      onerror: () => null,
+      ontimeout: () => null,
+      timeout: 30 * 1000,
+    });
+  $("body").append($(`<div id="previewthumbs2" style="display: none;"></div>`));
+  let $hrefs = $("div.previewthumbs > a").get().map((e) => `<img src="${e.href}" />`);
+  if ($hrefs.length <= 1) {
+    const urls = $("img.CodeIMG").parent().get().map((e) => `${`${e.href}`.split('?url=')[1]}`.split('&ver=')[0]).filter((url) => url.includes('dmm.co.jp')).map(decodeURIComponent);
+    $hrefs = urls.map((src) => $(`<img src="${src}" />`));
+  }
+  $("div#previewthumbs2").append($hrefs);
+  const viewer = new Viewer(document.getElementById('previewthumbs2'));
+  $("div.previewthumbs > a").click((event) => {
+    event.preventDefault();
+    viewer.show();
+  });
+  $("div.socialmedia").after($(`<button>show</button>`).click(() => viewer.show()));
 
   const videoId = $("div#video_id > table > tbody > tr > td.text")[0]?.innerText;
   const regex = /^.*[a-zA-Z]{1}[a-zA-Z0-9]{2,}-[0-9]{3,}/;
