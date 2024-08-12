@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         kemono-download
-// @version      0.3
+// @version      0.4
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
