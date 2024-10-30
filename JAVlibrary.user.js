@@ -15,6 +15,15 @@
 // @grant        GM.addStyle
 // @run-at       document-end
 // ==/UserScript==
+console.log('here');
+  const delay = (millisec) => new Promise((res) => window.setTimeout(res, millisec));
+  const errorCode = $('h1.inline-block').children[1];
+  if (errorCode && errorCode.innerHTML === '1015') {
+    console.log('start');
+    await delay(3000);
+    console.log('stop');
+    window.location.reload();
+  }
 $(document).ready(async () => {
     GM.xmlHttpRequest({
       method: 'GET',
