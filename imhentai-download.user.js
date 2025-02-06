@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         imhentai-download
-// @version      0.1
+// @version      0.2
 // @description  insert download gallery button
 // @author       penguin-jedi
 // @homepage     https://github.com/penguin-jedi/hentaithai
@@ -44,7 +44,13 @@ $j(document).ready(async () => {
         ...headers,
       },
       responseType: 'arraybuffer',
-      onloadend: resolve,
+      onloadend: (responseObject) => {
+        if (responseObject.status === 200 && !responseObject.responseText) {
+          const decoder = new TextDecoder();
+          responseObject.responseText = decoder.decode(responseObject.response);
+        }
+        resolve(responseObject);
+      },
       onerror: reject,
       ontimeout: reject,
       timeout: DOWNLOAD_TIMEOUT_MILLISECOND,
@@ -77,7 +83,7 @@ $j(document).ready(async () => {
         await job();
         break;
       } catch (error) {
-        onError(error);
+        onError(error, k);
         await delay(RETRY_DELAY_MILLISECOND);
         continue;
       }
@@ -92,21 +98,17 @@ $j(document).ready(async () => {
     return result;
   };
   const galleryId = window.location.pathname.split('/').at(-2);
-  const downloadGallery = async (skipingIndexs) => {
+  const downloadGallery = async (takingIndexesMap) => {
     if (downloadGallerying === true) return;
     const originalHtml = start();
     const title = $j("div.right_details > h1").map((_index, element) => element.innerHTML).get().join('') || $j('title').html();
     const imgPages = $j("div.gthumb > a").get().map((element) => element.href);
     const gallerySize = imgPages.length;
-    const mappedSkipingIndexs = skipingIndexs.map((skipingIndex) => {
-      if(skipingIndex < 0) return gallerySize + skipingIndex;
-      else return skipingIndex;
-    });
-    const imageContents = Array(gallerySize);
     const targetLength = Math.ceil(Math.log10(gallerySize));
+    const imageContents = Array(gallerySize);
     const imgQueue = [];
     imgPages.forEach((url, index) => {
-      if (!mappedSkipingIndexs.includes(index)) imgQueue.push({ url, index });
+      if (takingIndexesMap[index] === true) imgQueue.push({ url, index });
     });
     const retryableTask = async () => {
       for (let element = imgQueue.shift(); !!element; element = imgQueue.shift()) {
@@ -119,8 +121,8 @@ $j(document).ready(async () => {
           imageContents[index] = await httpGet(imgSrc);
           await delay(Math.floor((Math.random() * 512) + 1));
         };
-        await retryableJob(attempt, (error) => {
-          console.error(`[${taskID}]`, error.stack);
+        await retryableJob(attempt, (error, attemptTH) => {
+          console.error(`[${taskID}.${attemptTH}]`, error);
         }, RETRY_MAX_COUNT);
       }
     };
@@ -143,10 +145,42 @@ $j(document).ready(async () => {
   window.onbeforeunload = unsafeWindow.onbeforeunload = () => downloadGallerying ? 'Downloading, pls w8' : null;
 
   const preDownload = async () => {
-    // $j("button#load_all").trigger('click');
-    const skipPreIndexs = $j("input:radio[name ='skip_pre']:checked").val().split(',').filter((n) => !!n);
-    const skipSufIndexs = $j("input:radio[name ='skip_suf']:checked").val().split(',').filter((n) => !!n);
-    await downloadGallery(skipPreIndexs.concat(skipSufIndexs).map((n) => parseInt(n)));
+    const gallerySize = $j("div.gthumb > a").get().map((element) => element.href).length;
+    const isSpecifyTakingPageNumbers = $j("input:text[name ='page_numbers']").val().length > 0;
+    const takingIndexesMap = Object.assign({}, Array(gallerySize).fill(!isSpecifyTakingPageNumbers));
+    if (!isSpecifyTakingPageNumbers) {
+      const skipPreIndexs = $j("input:radio[name ='skip_pre']:checked").val().split(',').filter((n) => !!n);
+      const skipSufIndexs = $j("input:radio[name ='skip_suf']:checked").val().split(',').filter((n) => !!n);
+      // ['0', '1', '-1', '-2', '-3']
+      skipPreIndexs.concat(skipSufIndexs).forEach((n) => {
+        let skipingIndex = parseInt(n);
+        if(skipingIndex < 0) skipingIndex += gallerySize;
+        takingIndexesMap[skipingIndex] = false;
+      });
+    }
+    else {
+      // gallery with 10 pages:              10     9
+      // 1,3,4-9,-1,-2 -> ['1', '3', '4-9', '-1', '-2']
+      const pageNumbers = $j("input:text[name ='page_numbers']").val().split(',');
+      pageNumbers.forEach((pageNumberStr) => {
+        if(pageNumberStr.startsWith('-')) {
+          const pageNumber = parseInt(pageNumberStr) + 1 + gallerySize;
+          takingIndexesMap[pageNumber-1] = true;
+        }
+        else if(pageNumberStr.includes('-')) {
+          const [startPageNumber, endPageNumber] = pageNumberStr.split('-').map((n) => parseInt(n));
+          for(let i = startPageNumber; i <= endPageNumber; i++) {
+            takingIndexesMap[i-1] = true;
+          }
+        }
+        else {
+          const pageNumber = parseInt(pageNumberStr);
+          takingIndexesMap[pageNumber-1] = true;
+        }
+      });
+    }
+    // console.info('takingIndexesMap', takingIndexesMap);
+    await downloadGallery(takingIndexesMap);
   };
 
   $j(document.body).prepend(`
@@ -165,6 +199,7 @@ $j(document).ready(async () => {
           <label><input type="radio" name="skip_suf" value="" checked> don't skip</label>
         </div>
       </div>
+      <input type="text" style="color:black;" name="page_numbers" />
       <div style="display:flex;justify-content:center;padding-top:10px;">
         <button id="downloadGalleryButton" style="width: 88px; height: 40px; color: black;">Download</button>
       </div>
